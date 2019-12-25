@@ -7,14 +7,9 @@ package workshop.javafx;
 
 import java.io.IOException;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -22,6 +17,8 @@ import javafx.stage.Stage;
  * @author User
  */
 public class WorkshopJavaFX extends Application {
+    
+    private static Scene mainScene;
     
     @Override
     public void start(Stage primaryStage) {
@@ -32,13 +29,17 @@ public class WorkshopJavaFX extends Application {
             scrollPane.setFitToHeight(true);
             scrollPane.setFitToWidth(true);
             
-            Scene scene = new Scene(scrollPane);
-            primaryStage.setScene(scene);
+            mainScene = new Scene(scrollPane);
+            primaryStage.setScene(mainScene);
             primaryStage.setTitle("JavaFx aplication");
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public  static Scene getMainScene(){
+        return mainScene;
     }
 
     /**
