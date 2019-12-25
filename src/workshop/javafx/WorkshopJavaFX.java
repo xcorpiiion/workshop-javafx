@@ -13,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -26,9 +27,12 @@ public class WorkshopJavaFX extends Application {
     public void start(Stage primaryStage) {
         try {
             FXMLLoader fXMLLoader = new FXMLLoader(getClass().getResource("/gui/MainView.fxml"));
-            Parent parent = fXMLLoader.load();
+            ScrollPane scrollPane = fXMLLoader.load();
             
-            Scene scene = new Scene(parent);
+            scrollPane.setFitToHeight(true);
+            scrollPane.setFitToWidth(true);
+            
+            Scene scene = new Scene(scrollPane);
             primaryStage.setScene(scene);
             primaryStage.setTitle("JavaFx aplication");
             primaryStage.show();
