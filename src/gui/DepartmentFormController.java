@@ -5,23 +5,38 @@
  */
 package gui;
 
+import db.DbException;
+import gui.util.Alerts;
 import gui.util.Constraints;
+import gui.util.Utils;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.service.DepartmentServices;
 
 /**
  *
  * @author User
  */
-public class DepartmentFormController implements Initializable{
+public class DepartmentFormController implements Initializable {
 
     private Department entityDepartment;
+    private DepartmentServices departmentServices;
+
+    public DepartmentServices getDepartmentServices() {
+        return departmentServices;
+    }
+
+    public void setDepartmentServices(DepartmentServices departmentServices) {
+        this.departmentServices = departmentServices;
+    }
 
     public Department getEntityDepartment() {
         return entityDepartment;
@@ -30,7 +45,7 @@ public class DepartmentFormController implements Initializable{
     public void setEntityDepartment(Department entityDepartment) {
         this.entityDepartment = entityDepartment;
     }
-    
+
     @FXML
     private TextField txtFieldId;
     @FXML
@@ -41,38 +56,64 @@ public class DepartmentFormController implements Initializable{
     private Button btnSalvar;
     @FXML
     private Button btnCancelar;
-    
+
     @FXML
-    public void onButtonSaveAction(){
-        System.out.println("Salvou");
+    public void onButtonSaveAction(ActionEvent actionEvent) {
+        if (entityDepartment == null) {
+            throw new IllegalStateException("Error! O entityDepartment está null");
+        }
+
+        if (departmentServices == null) {
+            throw new IllegalStateException("Error! O departmentServices esta nullo está null");
+        }
+        try {
+            // Chama o metodo e manda o departamento para ser salvo no banco de dados
+            entityDepartment = getFormData();
+            // Manda o departamento para ser salvo no banco de dados
+            departmentServices.saveOrUpdate(entityDepartment);
+            // Esse comando serve para eu fechar a janela
+            Utils.currentStage(actionEvent).close();
+        } catch (DbException e) {
+            Alerts.showAlert("Error save objects", "Error", null, e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
-    
+
     @FXML
-    public void onButtonCancelAction(){
-        System.out.println("Cancelou");
+    public void onButtonCancelAction(ActionEvent actionEvent) {
+        // Serve para eu fechar a minha janela
+        Utils.currentStage(actionEvent).close();
     }
-    
+
     @Override
     public void initialize(URL url, ResourceBundle resources) {
         initializaNode();
     }
-    
+
     // faz com que o ID apenas aceite números inteiros e define o maximo de caracteres para o nome.
-    private void initializaNode(){
+    private void initializaNode() {
         Constraints.setTextFieldInteger(txtFieldId);
         Constraints.setTextFieldMaxLength(txtFieldId, 30);
-        
+
     }
-    
-    public void updateFormDate(){
-        if(this.entityDepartment == null) {
+
+    public void updateFormDate() {
+        if (this.entityDepartment == null) {
             throw new IllegalAccessError("Departamento esta null");
         }
         // converte o valor do id para um tipo texto
         txtFieldId.setText(String.valueOf(this.entityDepartment.getId()));
         txtFieldNome.setText(String.valueOf(this.entityDepartment.getNome()));
-        
-        
     }
-    
+
+    // Altera os dados e manda o departamento como retorno
+    public Department getFormData() {
+        Department department = new Department();
+
+        department.setId(Utils.tryParseToInt(txtFieldId.getText()));
+        department.setNome(txtFieldNome.getText());
+
+        return department;
+
+    }
+
 }

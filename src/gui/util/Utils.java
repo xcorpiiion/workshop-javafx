@@ -21,4 +21,14 @@ public class Utils {
         return (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
     }
     
+    // Vai tentar converter um string para número, caso ele não consiga, vai retornar um valor nullo
+    public static Integer tryParseToInt(String str){
+        try {
+            return  Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        
+    }
+    
 }

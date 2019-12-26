@@ -117,6 +117,8 @@ public class DepartmentListController implements Initializable {
             DepartmentFormController departmentFormController = fXMLLoader.getController();
             // Manda o departamento para ser tratado pela classe
             departmentFormController.setEntityDepartment(department);
+            // Cria a dependencia do departmentServices
+            departmentFormController.setDepartmentServices(new DepartmentServices());
             // Atualiza os dados
             departmentFormController.updateFormDate();
             
