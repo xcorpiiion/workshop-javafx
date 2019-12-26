@@ -53,8 +53,11 @@ public class DepartmentListController implements Initializable {
     public void onButtonNewAction(ActionEvent actionEvent) {
         // A partir do actionEvent eu consigo acessar o Stage.
         Stage parentStage = Utils.currentStage(actionEvent);
+        
+        Department department = new Department();
+        
         // manda a tela DepartmentForm para criar a caixa de dialogo e também pede o 'PAI' da caixa
-        createDialogForm(parentStage, "/gui/DepartmentForm.fxml");
+        createDialogForm(parentStage, "/gui/DepartmentForm.fxml", department);
     }
 
     @Override
@@ -105,10 +108,17 @@ public class DepartmentListController implements Initializable {
     }
     
     // Cria uma caixa de dialogo na tela do usuario
-    public void createDialogForm(Stage parentStage, String absoluteName){
+    public void createDialogForm(Stage parentStage, String absoluteName, Department department){
         try {
             FXMLLoader fXMLLoader = new FXMLLoader(getClass().getResource(absoluteName));
             Pane pane = fXMLLoader.load();
+            
+            // cria a instancia do departamento
+            DepartmentFormController departmentFormController = fXMLLoader.getController();
+            // Manda o departamento para ser tratado pela classe
+            departmentFormController.setEntityDepartment(department);
+            // Atualiza os dados
+            departmentFormController.updateFormDate();
             
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Informe o nome do departamento");

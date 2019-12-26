@@ -13,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import model.entities.Department;
 
 /**
  *
@@ -20,6 +21,16 @@ import javafx.scene.control.TextField;
  */
 public class DepartmentFormController implements Initializable{
 
+    private Department entityDepartment;
+
+    public Department getEntityDepartment() {
+        return entityDepartment;
+    }
+
+    public void setEntityDepartment(Department entityDepartment) {
+        this.entityDepartment = entityDepartment;
+    }
+    
     @FXML
     private TextField txtFieldId;
     @FXML
@@ -46,9 +57,21 @@ public class DepartmentFormController implements Initializable{
         initializaNode();
     }
     
+    // faz com que o ID apenas aceite números inteiros e define o maximo de caracteres para o nome.
     private void initializaNode(){
         Constraints.setTextFieldInteger(txtFieldId);
         Constraints.setTextFieldMaxLength(txtFieldId, 30);
+        
+    }
+    
+    public void updateFormDate(){
+        if(this.entityDepartment == null) {
+            throw new IllegalAccessError("Departamento esta null");
+        }
+        // converte o valor do id para um tipo texto
+        txtFieldId.setText(String.valueOf(this.entityDepartment.getId()));
+        txtFieldNome.setText(String.valueOf(this.entityDepartment.getNome()));
+        
         
     }
     
