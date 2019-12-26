@@ -5,17 +5,26 @@
  */
 package gui;
 
+import gui.util.Alerts;
+import gui.util.Utils;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Department;
 import model.service.DepartmentServices;
@@ -40,9 +49,12 @@ public class DepartmentListController implements Initializable {
     @FXML
     private Button btnNew;
 
-    @FXML
-    public void onButtonNewAction() {
-        System.out.println("Clicou");
+    @FXML //Cria um novo departamento
+    public void onButtonNewAction(ActionEvent actionEvent) {
+        // A partir do actionEvent eu consigo acessar o Stage.
+        Stage parentStage = Utils.currentStage(actionEvent);
+        // manda a tela DepartmentForm para criar a caixa de dialogo e também pede o 'PAI' da caixa
+        createDialogForm(parentStage, "/gui/DepartmentForm.fxml");
     }
 
     @Override
@@ -90,6 +102,31 @@ public class DepartmentListController implements Initializable {
         no caso vai settar a minha lista de departamentos*/
         tableViewDepartment.setItems(observableList);
         
+    }
+    
+    // Cria uma caixa de dialogo na tela do usuario
+    public void createDialogForm(Stage parentStage, String absoluteName){
+        try {
+            FXMLLoader fXMLLoader = new FXMLLoader(getClass().getResource(absoluteName));
+            Pane pane = fXMLLoader.load();
+            
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Informe o nome do departamento");
+            /* Coloca a cena na frente da cena já existente */
+            dialogStage.setScene(new Scene(pane));
+            /* verifica se a janela pode ou não ser redimencionada */
+            dialogStage.setResizable(false);
+            /* Verifica quem é o 'PAI' da janela */
+            dialogStage.initOwner(parentStage);
+            /* Verifica se a janela é modal, ou seja, se vai travar, no caso eu não posso acessar outra janela enquanto
+            não fechar esta mesma janela */
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            /* Mostra na tela e espera uma ação ser executada */
+            dialogStage.showAndWait();
+            
+        } catch (IOException e) {
+            Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
 }
