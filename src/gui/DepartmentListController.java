@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -39,8 +41,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
 
     private DepartmentServices departmentServices;
     /* Esse ObservableList será associado ao TableView, assim fazendo os departamentos aparecerem na tela */
-    private ObservableList<Department> observableList; 
-    
+    private ObservableList<Department> observableList;
+
     @FXML
     private TableView<Department> tableViewDepartment;
     @FXML
@@ -48,15 +50,17 @@ public class DepartmentListController implements Initializable, DataChangeListen
     @FXML
     private TableColumn<Department, String> tableColumnNome;
     @FXML
+    private TableColumn<Department, Department> tableColumnEdit;
+    @FXML
     private Button btnNew;
 
     @FXML //Cria um novo departamento
     public void onButtonNewAction(ActionEvent actionEvent) {
         // A partir do actionEvent eu consigo acessar o Stage.
         Stage parentStage = Utils.currentStage(actionEvent);
-        
+
         Department department = new Department();
-        
+
         // manda a tela DepartmentForm para criar a caixa de dialogo e também pede o 'PAI' da caixa
         createDialogForm(parentStage, "/gui/DepartmentForm.fxml", department);
     }
@@ -87,15 +91,15 @@ public class DepartmentListController implements Initializable, DataChangeListen
     public void setDepartmentServices(DepartmentServices departmentServices) {
         this.departmentServices = departmentServices;
     }
-    
+
     /* Esse metodo é responsavel por acessar o serviço, carregar os departamentos e jogar esses departamentos dentro da
     ObservableList*/
-    public  void updateTableView(){
+    public void updateTableView() {
         // caso o departamento esteja nullo, o programa vai mandar essa exception para o programador
-        if(departmentServices == null){
-            throw  new IllegalStateException("O departmentServices estava null");
+        if (departmentServices == null) {
+            throw new IllegalStateException("O departmentServices estava null");
         }
-        
+
         // Vai retornar todos os departamentos que foram criados para dentro da variavel departmentList
         List<Department> departmentList = this.departmentServices.findAll();
         // Coloca a minha lista de departamentos dentro desta variavel, para assim poder mostrar na tela
@@ -105,15 +109,17 @@ public class DepartmentListController implements Initializable, DataChangeListen
         O TableView mostrará esses itens na tela através do metodo setItem, pois ele está settando os itens na tela
         no caso vai settar a minha lista de departamentos*/
         tableViewDepartment.setItems(observableList);
-        
+        // Esse metodo vai adicionar um botão com o texto 'edit' em cada linha da tabela
+        initEditButtons();
+
     }
-    
+
     // Cria uma caixa de dialogo na tela do usuario
-    public void createDialogForm(Stage parentStage, String absoluteName, Department department){
+    public void createDialogForm(Stage parentStage, String absoluteName, Department department) {
         try {
             FXMLLoader fXMLLoader = new FXMLLoader(getClass().getResource(absoluteName));
             Pane pane = fXMLLoader.load();
-            
+
             // cria a instancia do departamento
             DepartmentFormController departmentFormController = fXMLLoader.getController();
             // Manda o departamento para ser tratado pela classe
@@ -126,7 +132,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
             departmentFormController.subscribeDataChangeListener(this);
             // Atualiza os dados
             departmentFormController.updateFormDate();
-            
+
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Informe o nome do departamento");
             /* Coloca a cena na frente da cena já existente */
@@ -140,7 +146,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
             dialogStage.initModality(Modality.WINDOW_MODAL);
             /* Mostra na tela e espera uma ação ser executada */
             dialogStage.showAndWait();
-            
+
         } catch (IOException e) {
             Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -150,6 +156,26 @@ public class DepartmentListController implements Initializable, DataChangeListen
     // Esse metodo será chamado no momento em que eu apertar no botão salvar
     public void onDataChange() {
         updateTableView();
+    }
+
+    private void initEditButtons() {
+        tableColumnEdit.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+        tableColumnEdit.setCellFactory(param -> new TableCell<Department, Department>() {
+            private final Button button = new Button("edit");
+
+            @Override
+            protected void updateItem(Department obj, boolean empty) {
+                super.updateItem(obj, empty);
+
+                if (obj == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                setGraphic(button);
+                button.setOnAction(event -> createDialogForm(Utils.currentStage(event), "/gui/DepartmentForm.fxml", obj));
+            }
+        });
     }
 
 }
