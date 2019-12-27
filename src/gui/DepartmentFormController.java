@@ -13,7 +13,9 @@ import gui.util.Utils;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.exception.ValidationException;
 import model.service.DepartmentServices;
 
 /**
@@ -81,6 +84,8 @@ public class DepartmentFormController implements Initializable {
             Utils.currentStage(actionEvent).close();
         } catch (DbException e) {
             Alerts.showAlert("Error save objects", "Error", null, e.getMessage(), Alert.AlertType.ERROR);
+        } catch(ValidationException e){
+            serErrorMessages(e.getMapErros());
         }
     }
 
@@ -115,8 +120,21 @@ public class DepartmentFormController implements Initializable {
     public Department getFormData() {
         Department department = new Department();
 
+        ValidationException validationException = new ValidationException("Error mensage");
+        
         department.setId(Utils.tryParseToInt(txtFieldId.getText()));
+        
+        // Verifica se o campo de texto do departamento esta vazio.
+        // Caso esteja, vai add uma mensagem de error ao campo map da minha classe ValidationException
+        if(txtFieldNome.getText() == null || txtFieldNome.getText().trim().equals("")) {
+            validationException.addError("nameError", "O nome não pode ficar vazio");
+        }
         department.setNome(txtFieldNome.getText());
+        
+        // Caso o meu map possua 1 erro, ele vai lançar a Exception, assim informando ao usuario o erro
+        if(validationException.getMapErros().size() > 0){
+            throw validationException;
+        }
 
         return department;
 
@@ -132,6 +150,17 @@ public class DepartmentFormController implements Initializable {
         for(DataChangeListener listeners : dataChangeListeners){
             listeners.onDataChange();
         }
+    }
+    
+    private void serErrorMessages(Map<String, String> mapError){
+        Set<String> fields = mapError.keySet();
+        
+        // Verifica se o fields contém a chave nameError, caso tenha, mostra para o usuario o que está errado através do
+        // Label que foi add na tela de departamento
+        if(fields.contains("nameError")) {
+            labelError.setText(mapError.get("nameError"));
+        }
+        
     }
 
 }
