@@ -5,6 +5,7 @@
  */
 package gui;
 
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
 import java.io.IOException;
@@ -34,7 +35,7 @@ import workshop.javafx.WorkshopJavaFX;
  *
  * @author User
  */
-public class DepartmentListController implements Initializable {
+public class DepartmentListController implements Initializable, DataChangeListener {
 
     private DepartmentServices departmentServices;
     /* Esse ObservableList será associado ao TableView, assim fazendo os departamentos aparecerem na tela */
@@ -119,6 +120,10 @@ public class DepartmentListController implements Initializable {
             departmentFormController.setEntityDepartment(department);
             // Cria a dependencia do departmentServices
             departmentFormController.setDepartmentServices(new DepartmentServices());
+            // Esse comando faz com que eu me inscreva, para receber o evento
+            // ou seja, quando o evento for disparado, eu estarei pegando a interface que foi implementada aqui
+            // fazendo com que os meus dados sejam atualizados
+            departmentFormController.subscribeDataChangeListener(this);
             // Atualiza os dados
             departmentFormController.updateFormDate();
             
@@ -139,6 +144,12 @@ public class DepartmentListController implements Initializable {
         } catch (IOException e) {
             Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    @Override //Sempre que eu chamar esse metodo, eu vou atualizar os dados da minha tabela.
+    // Esse metodo será chamado no momento em que eu apertar no botão salvar
+    public void onDataChange() {
+        updateTableView();
     }
 
 }

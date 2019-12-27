@@ -6,10 +6,13 @@
 package gui;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,7 +32,20 @@ public class DepartmentFormController implements Initializable {
 
     private Department entityDepartment;
     private DepartmentServices departmentServices;
-
+    // Essa variavel faz com que os outros objetos se inscrevam na lista e receberem o evento
+    private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
+    
+    @FXML
+    private TextField txtFieldId;
+    @FXML
+    private TextField txtFieldNome;
+    @FXML
+    private Label labelError;
+    @FXML
+    private Button btnSalvar;
+    @FXML
+    private Button btnCancelar;
+    
     public DepartmentServices getDepartmentServices() {
         return departmentServices;
     }
@@ -47,17 +63,6 @@ public class DepartmentFormController implements Initializable {
     }
 
     @FXML
-    private TextField txtFieldId;
-    @FXML
-    private TextField txtFieldNome;
-    @FXML
-    private Label labelError;
-    @FXML
-    private Button btnSalvar;
-    @FXML
-    private Button btnCancelar;
-
-    @FXML
     public void onButtonSaveAction(ActionEvent actionEvent) {
         if (entityDepartment == null) {
             throw new IllegalStateException("Error! O entityDepartment está null");
@@ -71,6 +76,7 @@ public class DepartmentFormController implements Initializable {
             entityDepartment = getFormData();
             // Manda o departamento para ser salvo no banco de dados
             departmentServices.saveOrUpdate(entityDepartment);
+            notifyDataChangeListener();
             // Esse comando serve para eu fechar a janela
             Utils.currentStage(actionEvent).close();
         } catch (DbException e) {
@@ -114,6 +120,18 @@ public class DepartmentFormController implements Initializable {
 
         return department;
 
+    }
+    
+    // Permite que os meu dataChangeListeners se inscrevam na lista
+    public void subscribeDataChangeListener(DataChangeListener dataChangeListener){
+        this.dataChangeListeners.add(dataChangeListener);
+    }
+
+    
+    private void notifyDataChangeListener() {
+        for(DataChangeListener listeners : dataChangeListeners){
+            listeners.onDataChange();
+        }
     }
 
 }
