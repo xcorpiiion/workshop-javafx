@@ -5,12 +5,14 @@
  */
 package gui;
 
+import db.DbIntegrityException;
 import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -22,6 +24,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -53,6 +56,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
     private TableColumn<Department, Department> tableColumnEdit;
     @FXML
     private Button btnNew;
+    @FXML
+    private TableColumn<Department, Department> tableColumnRemove;
 
     @FXML //Cria um novo departamento
     public void onButtonNewAction(ActionEvent actionEvent) {
@@ -111,7 +116,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
         tableViewDepartment.setItems(observableList);
         // Esse metodo vai adicionar um botão com o texto 'edit' em cada linha da tabela
         initEditButtons();
-
+        // Esse metodo vai adicionar um botão com o texto 'remove' em cada linha da tabela
+        initRemoveButtons();
     }
 
     // Cria uma caixa de dialogo na tela do usuario
@@ -158,24 +164,84 @@ public class DepartmentListController implements Initializable, DataChangeListen
         updateTableView();
     }
 
+    // Cria um botão de edição em cada linha na tebela departamento
+    // Esse metodo cria os botões através do cellFactory e configura o evento do botão
     private void initEditButtons() {
         tableColumnEdit.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
         tableColumnEdit.setCellFactory(param -> new TableCell<Department, Department>() {
+            // Essa variavel vai servi para eu criar um botão de edição na tela.
+            // Como argumento eu estou enviando o nome do botão
             private final Button button = new Button("edit");
 
-            @Override
-            protected void updateItem(Department obj, boolean empty) {
-                super.updateItem(obj, empty);
+            @Override 
+            protected void updateItem(Department department, boolean empty) {
+                super.updateItem(department, empty);
 
-                if (obj == null) {
+                // Caso eu não tenha nenhum departamento, eu não vou conseguir criar o botão de edit assim o metodo
+                // Retorna um valor null
+                if (department == null) {
                     setGraphic(null);
                     return;
                 }
-
+                
+                // Ele chama o createDialogForm para pode mostrar o formulario na tela quando eu clicar no botão edit
+                // O setGraphic vai settar um botão na minha tela
                 setGraphic(button);
-                button.setOnAction(event -> createDialogForm(Utils.currentStage(event), "/gui/DepartmentForm.fxml", obj));
+                // Eu mando o a cena atual que eu estou como argumento da função, junto com o diretorio do departamentForm
+                // e o departamento que é equivalente a linha do botão edit. Em outras palavras, eu garanto que o 
+                // Botão edit vai editar o departamento que está na mesma linha
+                button.setOnAction(event -> createDialogForm(Utils.currentStage(event), "/gui/DepartmentForm.fxml", department));
             }
         });
+    }
+    
+    private void initRemoveButtons() {
+        tableColumnRemove.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+        tableColumnRemove.setCellFactory(param -> new TableCell<Department, Department>() {
+            // Essa variavel vai servi para eu criar um botão de edição na tela.
+            // Como argumento eu estou enviando o nome do botão
+            private final Button button = new Button("remove");
+
+            @Override 
+            protected void updateItem(Department department, boolean empty) {
+                super.updateItem(department, empty);
+
+                // Caso eu não tenha nenhum departamento, eu não vou conseguir criar o botão de edit assim o metodo
+                // Retorna um valor null
+                if (department == null) {
+                    setGraphic(null);
+                    return;
+                }
+                
+                // Ele chama o metodo removeEntity para pode mostrar o alert na tela quando eu clicar no botão remove
+                // O setGraphic vai settar um botão na minha tela
+                setGraphic(button);
+                // Eu mando o a cena atual que eu estou como argumento da função, junto com o diretorio do departamentForm
+                // e o departamento que é equivalente a linha do botão remove. Em outras palavras, eu garanto que o 
+                // Botão remove vai remover o departamento que está na mesma linha
+                button.setOnAction(event -> removeEntity(department));
+            }
+        });
+    }
+    
+    // Remove os departamentos
+    private void removeEntity(Department department){
+        Optional<ButtonType> confirmationDelete = Alerts.showConfirmation("Confirmação", "Deseja deletar esse departamento ?");
+        
+        // Pega o tipo de botão que eu cliquei
+        if(confirmationDelete.get()== ButtonType.OK){
+            if(departmentServices == null) {
+                throw new IllegalStateException("Departamento não existe");
+            }
+            try {
+                // Remove o departamento
+                departmentServices.removeDepartment(department);
+                // Atualiza a tabela
+                updateTableView();
+            } catch (DbIntegrityException e) {
+                Alerts.showAlert("Erro ao remover o departamento", null, null, e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
     }
 
 }

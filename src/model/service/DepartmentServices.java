@@ -15,24 +15,31 @@ import model.entities.Department;
  * @author User
  */
 public class DepartmentServices {
-    
+
     private final DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
-    
+
     /* Cria uma lista de departamentos e retorna os departamentos criado */
-    public List<Department>  findAll(){
+    public List<Department> findAll() {
         return departmentDao.findAll();
     }
-    
+
     // Esse metodo verifica se eu salvo o departamento no banco, ou se eu atualizo o departamento.
-    public void saveOrUpdate(Department department){
+    public void saveOrUpdate(Department department) {
         // Verifica se o departamento possui um ID, ou seja, se ele possuir, eu só preciso atualizar o banco
         // Caso eu não tenha um ID, ele irá inserir no banco esse departamento
-        if(department.getId() == null){
+        if (department.getId() == null) {
             departmentDao.insert(department);
-        } else{
+        } else {
             departmentDao.update(department);
         }
-        
+
     }
-    
+
+    // Remove um departamento
+    public void removeDepartment(Department department) {
+
+        departmentDao.deleteById(department.getId());
+
+    }
+
 }

@@ -5,8 +5,10 @@
  */
 package gui.util;
 
+import java.util.Optional;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 
 /**
@@ -21,6 +23,15 @@ public class Alerts {
         alert.setHeaderText(cabecalio);
         alert.setContentText(conteudo);
         alert.show();
+    }
+    
+    // Cria um Alert do tipo confirmação
+    public static Optional<ButtonType> showConfirmation(String title, String content){
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.setHeaderText(null);
+        return  alert.showAndWait();
     }
     
 }
