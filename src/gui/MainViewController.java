@@ -19,6 +19,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import model.service.DepartmentServices;
+import model.service.SellerServices;
 import workshop.javafx.WorkshopJavaFX;
 
 /**
@@ -36,7 +37,15 @@ public class MainViewController implements Initializable {
 
     @FXML
     public void onMenuItemVendedorAction() {
-        System.out.println("onMenuItemVendedorAction");
+        /* Carrega a tela através do link que eu estou enviando como argumento.
+        Ele usa uma expressão LAMBDA para fazer a inicialização do sellerListController*/
+        loadView("/gui/SellerList.fxml", (SellerListController sellerListController) -> {
+            /* A partir da variavel sellerListController eu consigo fazer uma injeção de dependencia dentro dele */
+            sellerListController.setSellerServices(new SellerServices());
+            /* Após fazer a injeção de dependencia dentro do sellerListController, eu consigo atualizar a TableView
+            e assim eu posso mostrar os dados do seller na tela */
+            sellerListController.updateTableView();
+        });
     }
 
     @FXML // ao clicar no departamento, chama o fxml do departamento
