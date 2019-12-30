@@ -66,13 +66,13 @@ public class SellerListController implements Initializable, DataChangeListener {
     @FXML
     private TableColumn<Seller, Double> tableColumnBaseSalary;
 
-    @FXML //Cria um novo departamento
+    @FXML //Cria um novo vendedor
     public void onButtonNewAction(ActionEvent actionEvent) {
         // A partir do actionEvent eu consigo acessar o Stage.
         Stage parentStage = Utils.currentStage(actionEvent);
 
         Seller seller = new Seller();
-
+        
         // manda a tela SellerForm para criar a caixa de dialogo e também pede o 'PAI' da caixa
         createDialogForm(parentStage, "/gui/SellerForm.fxml", seller);
     }
@@ -135,14 +135,14 @@ public class SellerListController implements Initializable, DataChangeListener {
 
     // Cria uma caixa de dialogo na tela do usuario
     public void createDialogForm(Stage parentStage, String absoluteName, Seller seller) {
-        /*  try {
+        try {
             FXMLLoader fXMLLoader = new FXMLLoader(getClass().getResource(absoluteName));
             Pane pane = fXMLLoader.load();
-
-            // cria a instancia do departamento
+            // cria a instancia do vendedor
             SellerFormController sellerFormController = fXMLLoader.getController();
-            // Manda o departamento para ser tratado pela classe
-            sellerFormController.setEntitySellerseller);
+            // Manda o vendedor para ser tratado pela classe
+            sellerFormController.setEntitySeller(seller);
+
             // Cria a dependencia do sellerServices
             sellerFormController.setSellerServices(new SellerServices());
             // Esse comando faz com que eu me inscreva, para receber o evento
@@ -153,22 +153,23 @@ public class SellerListController implements Initializable, DataChangeListener {
             sellerFormController.updateFormDate();
 
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Informe o nome do departamento"); */
-        //      /* Coloca a cena na frente da cena já existente */
-        //    dialogStage.setScene(new Scene(pane));
-        //  /* verifica se a janela pode ou não ser redimencionada */
-        //          dialogStage.setResizable(false);
-        //       /* Verifica quem é o 'PAI' da janela */
-        //     dialogStage.initOwner(parentStage);
-        //   /* Verifica se a janela é modal, ou seja, se vai travar, no caso eu não posso acessar outra janela enquanto
-        // não fechar esta mesma janela */
-        //        dialogStage.initModality(Modality.WINDOW_MODAL);
-        //       /* Mostra na tela e espera uma ação ser executada */
-        //     dialogStage.showAndWait();
+            dialogStage.setTitle("Informe o nome do vendedor");
+            /* Coloca a cena na frente da cena já existente */
+            dialogStage.setScene(new Scene(pane));
+            System.out.println("Enttrou aqui");
+            /* verifica se a janela pode ou não ser redimencionada */
+            dialogStage.setResizable(false);
+            /* Verifica quem é o 'PAI' da janela */
+            dialogStage.initOwner(parentStage);
+            /* Verifica se a janela é modal, ou seja, se vai travar, no caso eu não posso acessar outra janela enquanto
+         não fechar esta mesma janela */
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            /* Mostra na tela e espera uma ação ser executada */
+            dialogStage.showAndWait();
 
-        //  } catch (IOException e) {
-        //    Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
-        //  } 
+        } catch (IOException e) {
+            Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     @Override //Sempre que eu chamar esse metodo, eu vou atualizar os dados da minha tabela.

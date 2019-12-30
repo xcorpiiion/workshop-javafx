@@ -34,6 +34,7 @@ public class Utils {
 
     }
 
+    // Formata a data
     public static <T> void formatTableColumnDate(TableColumn<T, Date> tableColumn, String format) {
         tableColumn.setCellFactory(column -> {
             TableCell<T, Date> cell = new TableCell<T, Date>() {
@@ -54,6 +55,7 @@ public class Utils {
         });
     }
 
+    // Formata o salario
     public static <T> void formatTableColumnDouble(TableColumn<T, Double> tableColumn, int decimalPlaces) {
         tableColumn.setCellFactory(column -> {
             TableCell<T, Double> cell = new TableCell<T, Double>() {
