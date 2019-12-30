@@ -11,8 +11,12 @@ import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -21,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Seller;
@@ -37,18 +42,30 @@ public class SellerFormController implements Initializable {
     private SellerServices sellerServices;
     // Essa variavel faz com que os outros objetos se inscrevam na lista e receberem o evento
     private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
-    
+
     @FXML
     private TextField txtFieldId;
     @FXML
     private TextField txtFieldNome;
     @FXML
+    private TextField txtFieldEmail;
+    @FXML
+    private DatePicker datePickerBirthDate;
+    @FXML
+    private TextField txtFieldBaseSalary;
+    @FXML
     private Label labelError;
+    @FXML
+    private Label labelErrorEmail;
+    @FXML
+    private Label labelErrorBirthDate;
+    @FXML
+    private Label labelErrorBaseSalary;
     @FXML
     private Button btnSalvar;
     @FXML
     private Button btnCancelar;
-    
+
     public SellerServices getSellerServices() {
         return sellerServices;
     }
@@ -62,7 +79,7 @@ public class SellerFormController implements Initializable {
     }
 
     public void setEntitySeller(Seller entitySeller) {
-        this.entitySeller= entitySeller;
+        this.entitySeller = entitySeller;
     }
 
     @FXML
@@ -84,7 +101,7 @@ public class SellerFormController implements Initializable {
             Utils.currentStage(actionEvent).close();
         } catch (DbException e) {
             Alerts.showAlert("Error save objects", "Error", null, e.getMessage(), Alert.AlertType.ERROR);
-        } catch(ValidationException e){
+        } catch (ValidationException e) {
             serErrorMessages(e.getMapErros());
         }
     }
@@ -104,6 +121,9 @@ public class SellerFormController implements Initializable {
     private void initializaNode() {
         Constraints.setTextFieldInteger(txtFieldId);
         Constraints.setTextFieldMaxLength(txtFieldId, 30);
+        Constraints.setTextFieldDouble(this.txtFieldBaseSalary, 0);
+        Constraints.setTextFieldMaxLength(txtFieldEmail, 50);
+        Utils.formatDatePicker(datePickerBirthDate, "dd/MM/yyyy");
 
     }
 
@@ -114,6 +134,12 @@ public class SellerFormController implements Initializable {
         // converte o valor do id para um tipo texto
         txtFieldId.setText(String.valueOf(this.entitySeller.getId()));
         txtFieldNome.setText(String.valueOf(this.entitySeller.getName()));
+        txtFieldEmail.setText(String.valueOf(this.entitySeller.getEmail()));
+        Locale.setDefault(Locale.US);
+        txtFieldBaseSalary.setText(String.format("%.2f", this.entitySeller.getBaseSalary()));
+        if (entitySeller.getBirthDate() != null) {
+            datePickerBirthDate.setValue(LocalDateTime.ofInstant(entitySeller.getBirthDate().toInstant(), ZoneId.systemDefault()).toLocalDate());
+        }
     }
 
     // Altera os dados e manda o departamento como retorno
@@ -121,46 +147,45 @@ public class SellerFormController implements Initializable {
         Seller seller = new Seller();
 
         ValidationException validationException = new ValidationException("Error mensage");
-        
+
         seller.setId(Utils.tryParseToInt(txtFieldId.getText()));
-        
+
         // Verifica se o campo de texto do departamento esta vazio.
         // Caso esteja, vai add uma mensagem de error ao campo map da minha classe ValidationException
-        if(txtFieldNome.getText() == null || txtFieldNome.getText().trim().equals("")) {
+        if (txtFieldNome.getText() == null || txtFieldNome.getText().trim().equals("")) {
             validationException.addError("nameError", "O nome não pode ficar vazio");
         }
         seller.setName(txtFieldNome.getText());
-        
+
         // Caso o meu map possua 1 erro, ele vai lançar a Exception, assim informando ao usuario o erro
-        if(validationException.getMapErros().size() > 0){
+        if (validationException.getMapErros().size() > 0) {
             throw validationException;
         }
 
         return seller;
 
     }
-    
+
     // Permite que os meu dataChangeListeners se inscrevam na lista
-    public void subscribeDataChangeListener(DataChangeListener dataChangeListener){
+    public void subscribeDataChangeListener(DataChangeListener dataChangeListener) {
         this.dataChangeListeners.add(dataChangeListener);
     }
 
-    
     private void notifyDataChangeListener() {
-        for(DataChangeListener listeners : dataChangeListeners){
+        for (DataChangeListener listeners : dataChangeListeners) {
             listeners.onDataChange();
         }
     }
-    
-    private void serErrorMessages(Map<String, String> mapError){
+
+    private void serErrorMessages(Map<String, String> mapError) {
         Set<String> fields = mapError.keySet();
-        
+
         // Verifica se o fields contém a chave nameError, caso tenha, mostra para o usuario o que está errado através do
         // Label que foi add na tela de departamento
-        if(fields.contains("nameError")) {
+        if (fields.contains("nameError")) {
             labelError.setText(mapError.get("nameError"));
         }
-        
+
     }
 
 }
