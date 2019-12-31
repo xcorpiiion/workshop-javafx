@@ -158,7 +158,6 @@ public class SellerListController implements Initializable, DataChangeListener {
             dialogStage.setTitle("Informe o nome do vendedor");
             /* Coloca a cena na frente da cena já existente */
             dialogStage.setScene(new Scene(pane));
-            System.out.println("Enttrou aqui");
             /* verifica se a janela pode ou não ser redimencionada */
             dialogStage.setResizable(false);
             /* Verifica quem é o 'PAI' da janela */

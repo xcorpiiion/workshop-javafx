@@ -39,14 +39,16 @@
                   <Font name="Arial Bold" size="14.0" />
                </font>
             </Label>
+            <TextField fx:id="txtFieldEmail" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <DatePicker fx:id="datePickerBirthDate" prefHeight="25.0" prefWidth="261.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <TextField fx:id="txtFieldBaseSalary" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <ComboBox fx:id="comboBoxDepartment" prefHeight="25.0" prefWidth="256.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
                <children>
                   <Button fx:id="btnSalvar" mnemonicParsing="false" onAction="#onButtonSaveAction" prefHeight="37.0" prefWidth="82.0" text="Salvar" />
                   <Button fx:id="btnCancelar" mnemonicParsing="false" onAction="#onButtonCancelAction" prefHeight="37.0" prefWidth="82.0" text="Cancelar" />
                </children>
             </HBox>
-            <TextField fx:id="txtFieldEmail" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <TextField fx:id="txtFieldBaseSalary" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label layoutX="10.0" layoutY="35.0" text="E-MAIL" GridPane.rowIndex="2" />
             <Label layoutX="10.0" layoutY="57.0" text="DATA DE NASCIMENTO" GridPane.rowIndex="3" />
             <Label layoutX="10.0" layoutY="79.0" text="SALARIO" GridPane.rowIndex="4" />
@@ -66,8 +68,6 @@
                </font>
             </Label>
             <Label layoutX="10.0" layoutY="87.0" text="DEPARTAMENTO" GridPane.rowIndex="5" />
-            <DatePicker fx:id="datePickerBirthDate" prefHeight="25.0" prefWidth="261.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <ComboBox fx:id="comboBoxDepartment" prefHeight="25.0" prefWidth="256.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
          </children>
       </GridPane>
    </children>

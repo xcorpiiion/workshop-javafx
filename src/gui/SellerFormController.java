@@ -11,10 +11,12 @@ import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -110,11 +112,13 @@ public class SellerFormController implements Initializable {
             // Manda o departamento para ser salvo no banco de dados
             sellerServices.saveOrUpdate(entitySeller);
             notifyDataChangeListener();
+            
             // Esse comando serve para eu fechar a janela
             Utils.currentStage(actionEvent).close();
         } catch (DbException e) {
             Alerts.showAlert("Error save objects", "Error", null, e.getMessage(), Alert.AlertType.ERROR);
         } catch (ValidationException e) {
+            
             serErrorMessages(e.getMapErros());
         }
     }
@@ -155,7 +159,7 @@ public class SellerFormController implements Initializable {
             datePickerBirthDate.setValue(LocalDateTime.ofInstant(entitySeller.getBirthDate().toInstant(), ZoneId.systemDefault()).toLocalDate());
         }
         // Verifica se o vendedor possui um departamento, caso ele não tenha eu seleciono o primeiro departamento
-        if(entitySeller.getDepartment() == null) {
+        if (entitySeller.getDepartment() == null) {
             comboBoxDepartment.getSelectionModel().selectFirst();
         } else {
             comboBoxDepartment.setValue(entitySeller.getDepartment());
@@ -170,12 +174,32 @@ public class SellerFormController implements Initializable {
 
         seller.setId(Utils.tryParseToInt(txtFieldId.getText()));
 
-        // Verifica se o campo de texto do departamento esta vazio.
+        // Verifica se o campo de texto do vendedor esta vazio.
         // Caso esteja, vai add uma mensagem de error ao campo map da minha classe ValidationException
         if (txtFieldNome.getText() == null || txtFieldNome.getText().trim().equals("")) {
             validationException.addError("nameError", "O nome não pode ficar vazio");
         }
         seller.setName(txtFieldNome.getText());
+
+        if (txtFieldEmail.getText() == null || txtFieldEmail.getText().trim().equals("")) {
+            validationException.addError("emailError", "O email não pode ficar vazio");
+        }
+        seller.setEmail(txtFieldEmail.getText());
+
+        if (datePickerBirthDate.getValue() == null) {
+            validationException.addError("dateError", "A data não pode ficar vazia");
+        } else {
+            Instant instant = Instant.from(datePickerBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+            seller.setBirthDate(Date.from(instant));
+        }
+
+        if (txtFieldBaseSalary.getText() == null || txtFieldBaseSalary.getText().trim().equals("")) {
+            validationException.addError("baseSalaryError", "O salario não pode ficar vazio");
+        }
+        seller.setBaseSalary(Utils.tryParseToDouble(txtFieldBaseSalary.getText()));
+        
+        // Define o departamento do vendedor baseado no valor que aparece no combo box
+        seller.setDepartment(comboBoxDepartment.getValue());
 
         // Caso o meu map possua 1 erro, ele vai lançar a Exception, assim informando ao usuario o erro
         if (validationException.getMapErros().size() > 0) {
@@ -213,6 +237,26 @@ public class SellerFormController implements Initializable {
         // Label que foi add na tela de departamento
         if (fields.contains("nameError")) {
             labelError.setText(mapError.get("nameError"));
+        } else {
+            labelError.setText("");
+        }
+
+        if (fields.contains("emailError")) {
+            labelErrorEmail.setText(mapError.get("emailError"));
+        } else {
+         labelErrorEmail.setText("");   
+        }
+
+        if (fields.contains("baseSalaryError")) {
+            labelErrorBaseSalary.setText(mapError.get("baseSalaryError"));
+        } else {
+            labelErrorBaseSalary.setText("");
+        }
+
+        if (fields.contains("dateError")) {
+            labelErrorBirthDate.setText(mapError.get("dateError"));
+        } else {
+            labelErrorBirthDate.setText("");
         }
 
     }
