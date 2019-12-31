@@ -79,7 +79,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
         // esses comandos iniciam o comportamento das colunas
         // ele envia o nome das variaveis criadas no Department como argumento
         tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        tableColumnNome.setCellValueFactory(new PropertyValueFactory<>("name"));
+        tableColumnNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
 
         // faz a table view ajusta-se ao tamanho da janela
         // pega o tamanho da janela da cena principal e coloca na variavel stage
@@ -154,6 +154,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
             dialogStage.showAndWait();
 
         } catch (IOException e) {
+            e.printStackTrace();
             Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
         }
     }

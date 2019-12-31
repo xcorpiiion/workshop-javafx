@@ -34,6 +34,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.service.DepartmentServices;
 import model.service.SellerServices;
 import workshop.javafx.WorkshopJavaFX;
 
@@ -144,7 +145,8 @@ public class SellerListController implements Initializable, DataChangeListener {
             sellerFormController.setEntitySeller(seller);
 
             // Cria a dependencia do sellerServices
-            sellerFormController.setSellerServices(new SellerServices());
+            sellerFormController.setSellerAndDepartmentServices(new SellerServices(), new DepartmentServices());
+            sellerFormController.loadAssociatedObjects();
             // Esse comando faz com que eu me inscreva, para receber o evento
             // ou seja, quando o evento for disparado, eu estarei pegando a interface que foi implementada aqui
             // fazendo com que os meus dados sejam atualizados
@@ -168,6 +170,7 @@ public class SellerListController implements Initializable, DataChangeListener {
             dialogStage.showAndWait();
 
         } catch (IOException e) {
+            e.printStackTrace();
             Alerts.showAlert("IOException", "Error Loading view", null, e.getMessage(), Alert.AlertType.ERROR);
         }
     }

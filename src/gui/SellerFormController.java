@@ -20,16 +20,24 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.util.Callback;
+import model.entities.Department;
 import model.entities.Seller;
 import model.exception.ValidationException;
+import model.service.DepartmentServices;
 import model.service.SellerServices;
 
 /**
@@ -40,8 +48,10 @@ public class SellerFormController implements Initializable {
 
     private Seller entitySeller;
     private SellerServices sellerServices;
+    private DepartmentServices departmentServices;
     // Essa variavel faz com que os outros objetos se inscrevam na lista e receberem o evento
     private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
+    private ObservableList<Department> observableListDepartment;
 
     @FXML
     private TextField txtFieldId;
@@ -53,6 +63,8 @@ public class SellerFormController implements Initializable {
     private DatePicker datePickerBirthDate;
     @FXML
     private TextField txtFieldBaseSalary;
+    @FXML
+    private ComboBox<Department> comboBoxDepartment;
     @FXML
     private Label labelError;
     @FXML
@@ -70,8 +82,9 @@ public class SellerFormController implements Initializable {
         return sellerServices;
     }
 
-    public void setSellerServices(SellerServices sellerServices) {
+    public void setSellerAndDepartmentServices(SellerServices sellerServices, DepartmentServices departmentServices) {
         this.sellerServices = sellerServices;
+        this.departmentServices = departmentServices;
     }
 
     public Seller getEntitySeller() {
@@ -124,9 +137,10 @@ public class SellerFormController implements Initializable {
         Constraints.setTextFieldDouble(this.txtFieldBaseSalary, 0);
         Constraints.setTextFieldMaxLength(txtFieldEmail, 50);
         Utils.formatDatePicker(datePickerBirthDate, "dd/MM/yyyy");
-
+        initializeComboBoxDepartment();
     }
 
+    // Atualiza os dados do vendedor
     public void updateFormDate() {
         if (this.entitySeller == null) {
             throw new IllegalAccessError("Departamento esta null");
@@ -139,6 +153,12 @@ public class SellerFormController implements Initializable {
         txtFieldBaseSalary.setText(String.format("%.2f", this.entitySeller.getBaseSalary()));
         if (entitySeller.getBirthDate() != null) {
             datePickerBirthDate.setValue(LocalDateTime.ofInstant(entitySeller.getBirthDate().toInstant(), ZoneId.systemDefault()).toLocalDate());
+        }
+        // Verifica se o vendedor possui um departamento, caso ele não tenha eu seleciono o primeiro departamento
+        if(entitySeller.getDepartment() == null) {
+            comboBoxDepartment.getSelectionModel().selectFirst();
+        } else {
+            comboBoxDepartment.setValue(entitySeller.getDepartment());
         }
     }
 
@@ -177,6 +197,15 @@ public class SellerFormController implements Initializable {
         }
     }
 
+    public void loadAssociatedObjects() {
+        if (this.departmentServices == null) {
+            throw new IllegalStateException("DepartmentServices está null");
+        }
+        List<Department> listDepartment = this.departmentServices.findAll();
+        observableListDepartment = FXCollections.observableArrayList(listDepartment);
+        comboBoxDepartment.setItems(observableListDepartment);
+    }
+
     private void serErrorMessages(Map<String, String> mapError) {
         Set<String> fields = mapError.keySet();
 
@@ -186,6 +215,20 @@ public class SellerFormController implements Initializable {
             labelError.setText(mapError.get("nameError"));
         }
 
+    }
+
+    //Cria o combo box na tela
+    private void initializeComboBoxDepartment() {
+        Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>() {
+            @Override
+            protected void updateItem(Department department, boolean empty) {
+                super.updateItem(department, empty);
+                setText(empty ? "" : department.getNome());
+            }
+        };
+
+        comboBoxDepartment.setCellFactory(factory);
+        comboBoxDepartment.setButtonCell(factory.call(null));
     }
 
 }
